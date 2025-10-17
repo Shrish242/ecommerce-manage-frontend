@@ -65,7 +65,7 @@ export default function Navbar() {
           >
             <Menu className="h-6 w-6 text-gray-700" />
           </button>
-          <div className="text-2xl font-extrabold text-blue-600">Brand</div>
+          <div className="text-2xl font-extrabold text-blue-600">Store Forge</div>
         </div>
 
         <div className="flex items-center space-x-4">

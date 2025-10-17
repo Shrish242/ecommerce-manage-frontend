@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import DashboardOverview from './DashboardOverview';
 import ProductManagement from './ProductManagement';
 import OrdersManagement from './OrderManagement';
-import CustomerManagement from './CustomerOverview';
+import Automation from './Automation';
 import Analytics from './Analytics';
 import SettingsComponent from './Settings';
 
@@ -167,8 +167,8 @@ function Dashboard() {
         return <ProductManagement products={products} setProducts={setProducts} />;
       case 'orders':
         return <OrdersManagement />;
-      case 'customers':
-        return <CustomerManagement />;
+      case 'Automation':
+        return <Automation />;
       case 'analytics':
         return <Analytics />;
       case 'settings':
@@ -276,10 +276,10 @@ function Dashboard() {
             </li>
             <li className="mb-4">
               <button
-                onClick={() => handleNavClick('customers')}
+                onClick={() => handleNavClick('Automation')}
                 className={`w-full flex items-center text-gray-700 hover:text-indigo-700 font-medium p-2 rounded-lg hover:bg-indigo-50 transition-colors duration-200 ${activeSection === 'customers' ? 'bg-indigo-100 text-indigo-700' : ''}`}
               >
-                <Users size={20} className="mr-3" /> Customers
+                <Users size={20} className="mr-3" /> Alert and Automation
               </button>
             </li>
             <li className="mb-4">

@@ -7,20 +7,24 @@ import {
   BarChart3, 
   Palette, 
   Package, 
-  CreditCard,
-  Search,
   Globe,
-  Smartphone,
   ArrowRight,
   Check,
   Star,
   Users,
   TrendingUp,
-  Lock,
-  Headphones,
-  ChevronRight,
+  Target,
+  Rocket,
+  Award,
+  Mail,
+  Phone,
+  MapPin,
+  Send,
   Menu,
-  X
+  X,
+  Linkedin,
+  Twitter,
+  Github
 } from "lucide-react";
 
 export default function Home() {
@@ -37,148 +41,133 @@ export default function Home() {
 
   const navigation = [
     { name: 'Features', href: '#features' },
-    { name: 'Pricing', href: '#pricing' },
-    { name: 'Testimonials', href: '#testimonials' },
-    { name: 'Resources', href: '#resources' },
+    { name: 'About', href: '#about' },
+    { name: 'Solutions', href: '#solutions' },
+    { name: 'Contact', href: '#contact' },
   ];
 
   const features = [
     {
       icon: Palette,
-      title: "AI-Powered Design Studio",
-      description: "Create stunning stores with our intelligent design assistant that adapts to your brand.",
-      gradient: "from-purple-500 to-pink-500"
+      title: "AI-Powered Design",
+      description: "Intelligent design systems that adapt to your brand identity and create pixel-perfect experiences.",
+      gradient: "from-violet-500 to-purple-600"
     },
     {
       icon: Package,
-      title: "Unlimited Everything",
-      description: "Products, bandwidth, storage—scale without limits or hidden fees.",
-      gradient: "from-blue-500 to-cyan-500"
+      title: "Enterprise Infrastructure",
+      description: "Scalable architecture built for high-volume operations with zero downtime deployments.",
+      gradient: "from-blue-500 to-indigo-600"
     },
     {
       icon: Zap,
-      title: "Lightning Fast",
-      description: "Edge computing ensures your store loads in milliseconds worldwide.",
-      gradient: "from-yellow-500 to-orange-500"
+      title: "Global Performance",
+      description: "Edge-optimized delivery network ensuring sub-second load times across 150+ countries.",
+      gradient: "from-amber-500 to-orange-600"
     },
     {
       icon: Shield,
-      title: "Enterprise Security",
-      description: "Bank-level encryption, automatic backups, and 99.99% uptime guarantee.",
-      gradient: "from-green-500 to-emerald-500"
+      title: "Military-Grade Security",
+      description: "SOC 2 Type II certified with end-to-end encryption and advanced threat protection.",
+      gradient: "from-emerald-500 to-green-600"
     },
     {
       icon: BarChart3,
-      title: "Predictive Analytics",
-      description: "AI insights predict trends and optimize your conversion rates automatically.",
-      gradient: "from-indigo-500 to-purple-500"
+      title: "Advanced Analytics",
+      description: "Real-time business intelligence with predictive modeling and conversion optimization.",
+      gradient: "from-indigo-500 to-violet-600"
     },
     {
       icon: Globe,
-      title: "Global Ready",
-      description: "Multi-currency, multi-language, with automatic tax calculations.",
-      gradient: "from-pink-500 to-rose-500"
+      title: "International Commerce",
+      description: "Multi-currency processing, localized checkout, and automated compliance management.",
+      gradient: "from-pink-500 to-rose-600"
     }
   ];
 
   const stats = [
-    { value: "50K+", label: "Active Stores" },
-    { value: "$2.5B", label: "GMV Processed" },
-    { value: "99.99%", label: "Uptime" },
-    { value: "150+", label: "Countries" }
+    { value: "500+", label: "Active Users" },
+    { value: "150+", label: "Projects Launched" },
+    { value: "99.9%", label: "Uptime" },
+    { value: "24/7", label: "Support" }
   ];
 
-  const testimonials = [
+  const solutions = [
     {
-      name: "Sarah Chen",
-      role: "Founder, Bloom Beauty",
-      content: "Switched from Shopify and saved $3,000/year. The AI tools helped increase our conversion rate by 40%.",
-      rating: 5
+      icon: Rocket,
+      title: "Startups & SMBs",
+      description: "Launch and scale your business with enterprise-grade tools at startup-friendly pricing.",
+      features: ["Rapid deployment", "Growth analytics", "24/7 support"]
     },
     {
-      name: "Marcus Rodriguez",
-      role: "CEO, TechGear Pro",
-      content: "The predictive analytics are game-changing. We can anticipate demand and optimize inventory like never before.",
-      rating: 5
+      icon: TrendingUp,
+      title: "Enterprise Solutions",
+      description: "Custom infrastructure, dedicated support, and advanced integrations for large organizations.",
+      features: ["Custom SLAs", "White-label options", "API access"]
     },
     {
-      name: "Emma Thompson",
-      role: "Director, Artisan Collective",
-      content: "Finally, a platform that grows with us. From 10 to 10,000 products, performance never slowed down.",
-      rating: 5
+      icon: Target,
+      title: "Digital Agencies",
+      description: "Multi-client management platform with collaboration tools and white-label capabilities.",
+      features: ["Client portals", "Team collaboration", "Reseller programs"]
     }
   ];
 
+  const team = [
+    { role: "Founded", count: "2023", detail: "Building the Future" },
+    { role: "Team Size", count: "12+", detail: "Passionate Experts" },
+    { role: "Active Users", count: "500+", detail: "Growing Daily" },
+    { role: "Projects", count: "150+", detail: "Successfully Launched" }
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white text-slate-900 overflow-x-hidden">
-    
+    <div className="min-h-screen bg-white text-slate-900">
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8">
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-purple-50 opacity-70"></div>
+      <section className="relative pt-32 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-purple-50"></div>
+          <div className="absolute top-0 left-0 w-96 h-96 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse" style={{animationDelay: '1s'}}></div>
+        </div>
+        
         <div className="relative max-w-7xl mx-auto">
           <div className="text-center space-y-8">
-            <div className="inline-flex items-center bg-gradient-to-r from-indigo-100 to-purple-100 px-4 py-2 rounded-full">
-              <Sparkles className="w-4 h-4 text-indigo-600 mr-2" />
+            <div className="inline-flex items-center bg-white px-5 py-2.5 rounded-full shadow-md border border-slate-200">
+              <Award className="w-4 h-4 text-indigo-600 mr-2" />
               <span className="text-sm font-semibold text-slate-700">
-                Trusted by 50,000+ businesses worldwide
+                Trusted by 500+ Growing Businesses
               </span>
             </div>
             
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight">
-              <span className="bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                Build Your Dream Store
+              <span className="block text-slate-900 mb-2">
+                Enterprise Commerce
               </span>
-              <br />
-              <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                In Minutes, Not Months
+              <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                Built for Scale
               </span>
             </h1>
             
-            <p className="max-w-2xl mx-auto text-xl text-slate-600 leading-relaxed">
-              The only ecommerce platform that's truly free forever. 
-              No credit card. No hidden fees. Just powerful tools to grow your business.
+            <p className="max-w-3xl mx-auto text-xl text-slate-600 leading-relaxed">
+              The intelligent ecommerce platform powering the world's fastest-growing brands. 
+              Enterprise reliability meets startup agility.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <a
-                href="/signup"
-                className="group bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-full font-semibold text-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center"
-              >
-                Start Building Free
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </a>
-            </div>
-
-            <div className="flex items-center justify-center space-x-8 pt-8">
-              <div className="flex -space-x-2">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <div
-                    key={i}
-                    className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-purple-400 border-2 border-white"
-                  />
-                ))}
-              </div>
-              <div className="text-left">
-                <div className="flex items-center">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                  ))}
-                </div>
-                <p className="text-sm text-slate-600">Loved by 50,000+ merchants</p>
-              </div>
-            </div>
           </div>
         </div>
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-r from-indigo-600 to-purple-600">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+      <section className="py-20 bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px'}}></div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {stats.map((stat) => (
               <div key={stat.label} className="text-center">
-                <p className="text-4xl lg:text-5xl font-bold text-white">{stat.value}</p>
-                <p className="mt-2 text-indigo-100">{stat.label}</p>
+                <p className="text-4xl lg:text-5xl font-bold text-white mb-2">{stat.value}</p>
+                <p className="text-indigo-200 font-medium">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -186,171 +175,237 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 px-4 sm:px-6 lg:px-8">
+      <section id="features" className="py-24 px-4 sm:px-6 lg:px-8 bg-slate-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold mb-4">
+            <h2 className="text-4xl lg:text-5xl font-bold mb-6">
               <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                Everything You Need to Succeed
+                Built for Performance
               </span>
             </h2>
-            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-              Powerful features that grow with your business, all included free forever.
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+              Enterprise-grade capabilities engineered to deliver exceptional experiences at any scale.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature) => (
+            {features.map((feature, index) => (
               <div
                 key={feature.title}
-                className="group relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
+                className="group relative bg-white rounded-2xl p-8 shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-100 hover:border-transparent hover:-translate-y-2"
+                style={{
+                  transform: 'perspective(1000px)',
+                  transformStyle: 'preserve-3d'
+                }}
               >
-                <div className={`absolute inset-0 bg-gradient-to-r ${feature.gradient} opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity`}></div>
-                <div className={`inline-flex p-3 rounded-xl bg-gradient-to-r ${feature.gradient} mb-4`}>
+                <div className={`absolute inset-0 bg-gradient-to-r ${feature.gradient} opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity duration-500`}></div>
+                <div 
+                  className={`inline-flex p-3.5 rounded-xl bg-gradient-to-r ${feature.gradient} mb-5 shadow-lg group-hover:scale-110 transition-transform duration-300`}
+                  style={{
+                    transform: 'translateZ(20px)'
+                  }}
+                >
                   <feature.icon className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-                <p className="text-slate-600">{feature.description}</p>
+                <h3 className="text-xl font-bold mb-3 text-slate-900">{feature.title}</h3>
+                <p className="text-slate-600 leading-relaxed">{feature.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section id="testimonials" className="py-20 bg-gradient-to-b from-slate-50 to-white px-4 sm:px-6 lg:px-8">
+      {/* Solutions Section */}
+      <section id="solutions" className="py-24 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold mb-4">
+            <h2 className="text-4xl lg:text-5xl font-bold mb-6">
               <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                Loved by Entrepreneurs
+                Solutions for Every Stage
               </span>
             </h2>
-            <p className="text-xl text-slate-600">
-              Join thousands who've transformed their business with StoreForge
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+              Tailored solutions designed to meet your unique business requirements.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial) => (
+            {solutions.map((solution, index) => (
               <div
-                key={testimonial.name}
-                className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow"
+                key={solution.title}
+                className="bg-gradient-to-br from-slate-50 to-white rounded-2xl p-8 border border-slate-200 hover:border-indigo-300 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:rotate-1"
+                style={{
+                  transform: 'perspective(1000px)',
+                  transformStyle: 'preserve-3d'
+                }}
               >
-                <div className="flex mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                <div 
+                  className="inline-flex p-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 mb-5 hover:scale-110 transition-transform duration-300"
+                  style={{
+                    transform: 'translateZ(30px)'
+                  }}
+                >
+                  <solution.icon className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold mb-3 text-slate-900">{solution.title}</h3>
+                <p className="text-slate-600 mb-6">{solution.description}</p>
+                <ul className="space-y-3">
+                  {solution.features.map((feature) => (
+                    <li key={feature} className="flex items-center text-slate-700">
+                      <Check className="w-5 h-5 text-indigo-600 mr-3 flex-shrink-0" />
+                      <span>{feature}</span>
+                    </li>
                   ))}
-                </div>
-                <p className="text-slate-600 mb-6 italic">"{testimonial.content}"</p>
-                <div>
-                  <p className="font-semibold">{testimonial.name}</p>
-                  <p className="text-sm text-slate-500">{testimonial.role}</p>
-                </div>
+                </ul>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl p-12 text-center text-white relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 blur-3xl"></div>
-            <div className="relative z-10">
-              <h2 className="text-4xl lg:text-5xl font-bold mb-4">
-                Ready to Launch Your Store?
+      {/* About Section */}
+      <section id="about" className="py-24 px-4 sm:px-6 lg:px-8 bg-slate-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <h2 className="text-4xl lg:text-5xl font-bold mb-6">
+                <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  About StoreForge
+                </span>
               </h2>
-              <p className="text-xl mb-8 text-indigo-100">
-                Join 50,000+ successful entrepreneurs. Start free, grow unlimited.
-              </p>
-              <a
-                href="/signup"
-                className="inline-flex items-center bg-white text-indigo-600 px-8 py-4 rounded-full font-semibold text-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
-              >
-                Get Started Free
-                <ArrowRight className="ml-2 w-5 h-5" />
+              <div className="space-y-6 text-lg text-slate-600 leading-relaxed">
+                <p>
+                  Founded in 2023, StoreForge started as a passion project to revolutionize how 
+                  businesses build their online presence. What began as a small team of developers 
+                  has grown into a thriving platform serving hundreds of users worldwide.
+                </p>
+                <p>
+                  Our mission is to make powerful ecommerce tools accessible to everyone - from solo 
+                  entrepreneurs to growing businesses. We believe great technology should empower, 
+                  not complicate.
+                </p>
+                <p>
+                  We're constantly innovating, listening to our community, and building features that 
+                  actually matter. Join us on this journey to reshape online commerce.
+                </p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-6">
+              {team.map((item, index) => (
+                <div
+                  key={item.role}
+                  className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200 text-center hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:scale-105"
+                  style={{
+                    transform: 'perspective(1000px) rotateY(0deg)',
+                    transformStyle: 'preserve-3d',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'perspective(1000px) rotateY(5deg) translateZ(10px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'perspective(1000px) rotateY(0deg) translateZ(0px)';
+                  }}
+                >
+                  <p className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
+                    {item.count}
+                  </p>
+                  <p className="text-sm text-slate-500 mb-1">{item.role}</p>
+                  <p className="text-sm font-semibold text-slate-700">{item.detail}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section id="contact" className="py-24 px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl lg:text-5xl font-bold mb-6">
+              <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                Get in Touch
+              </span>
+            </h2>
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+              Ready to transform your commerce experience? Let's start the conversation.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-8 lg:gap-12">
+            <div className="flex items-start space-x-4 hover:-translate-y-1 hover:translate-x-2 transition-transform duration-300">
+              <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg hover:shadow-2xl hover:scale-110 transition-all duration-300">
+                <Mail className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold mb-1">Email Us</h3>
+                <p className="text-slate-600">contact@storeforge.com</p>
+                <p className="text-slate-600">support@storeforge.com</p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-4 hover:-translate-y-1 hover:translate-x-2 transition-transform duration-300">
+              <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg hover:shadow-2xl hover:scale-110 transition-all duration-300">
+                <Phone className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold mb-1">Call Us</h3>
+                <p className="text-slate-600">+1 (555) 123-4567</p>
+                <p className="text-slate-500 text-sm">Mon-Fri 9am-6pm EST</p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-4 hover:-translate-y-1 hover:translate-x-2 transition-transform duration-300">
+              <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg hover:shadow-2xl hover:scale-110 transition-all duration-300">
+                <MapPin className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold mb-1">Visit Us</h3>
+                <p className="text-slate-600">123 Commerce Street</p>
+                <p className="text-slate-600">San Francisco, CA 94105</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-16">
+            <h3 className="text-lg font-semibold mb-6">Follow Us</h3>
+            <div className="flex justify-center space-x-4">
+              <a href="#" className="w-14 h-14 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 hover:text-white transition-all duration-300 hover:scale-110 hover:-translate-y-1">
+                <Twitter className="w-6 h-6" />
               </a>
-              <p className="mt-4 text-sm text-indigo-200">
-                No credit card required • Free forever • 5-minute setup
-              </p>
+              <a href="#" className="w-14 h-14 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 hover:text-white transition-all duration-300 hover:scale-110 hover:-translate-y-1">
+                <Linkedin className="w-6 h-6" />
+              </a>
+              <a href="#" className="w-14 h-14 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 hover:text-white transition-all duration-300 hover:scale-110 hover:-translate-y-1">
+                <Github className="w-6 h-6" />
+              </a>
             </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-slate-300 py-16 px-4 sm:px-6 lg:px-8">
+      <footer className="bg-slate-900 text-slate-300 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
-            <div className="col-span-2">
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center">
-                  <Sparkles className="w-6 h-6 text-white" />
-                </div>
-                <span className="text-2xl font-bold text-white">StoreForge</span>
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center">
+                <Sparkles className="w-6 h-6 text-white" />
               </div>
-              <p className="text-slate-400 mb-6 max-w-sm">
-                The modern ecommerce platform that's free forever. Build, grow, and scale without limits.
-              </p>
-              <div className="flex space-x-4">
-                {['twitter', 'linkedin', 'github'].map((social) => (
-                  <a
-                    key={social}
-                    href={`#${social}`}
-                    className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-slate-700 transition-colors"
-                  >
-                    <span className="sr-only">{social}</span>
-                  </a>
-                ))}
-              </div>
+              <span className="text-xl font-bold text-white">StoreForge</span>
             </div>
             
-            <div>
-              <h4 className="text-white font-semibold mb-4">Product</h4>
-              <ul className="space-y-2">
-                {['Features', 'Pricing', 'Templates', 'Integrations'].map((link) => (
-                  <li key={link}>
-                    <a href={`#${link.toLowerCase()}`} className="hover:text-white transition-colors">
-                      {link}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="text-white font-semibold mb-4">Resources</h4>
-              <ul className="space-y-2">
-                {['Documentation', 'Blog', 'Tutorials', 'API'].map((link) => (
-                  <li key={link}>
-                    <a href={`#${link.toLowerCase()}`} className="hover:text-white transition-colors">
-                      {link}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="text-white font-semibold mb-4">Company</h4>
-              <ul className="space-y-2">
-                {['About', 'Careers', 'Contact', 'Partners'].map((link) => (
-                  <li key={link}>
-                    <a href={`#${link.toLowerCase()}`} className="hover:text-white transition-colors">
-                      {link}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-slate-800 pt-8 text-center">
-            <p className="text-slate-400">
-              © {new Date().getFullYear()} StoreForge. All rights reserved.
+            <p className="text-slate-400 text-sm">
+              © {new Date().getFullYear()} StoreForge Inc. All rights reserved.
             </p>
+            
+            <div className="flex space-x-6 text-sm">
+              <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+              <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+              <a href="#" className="hover:text-white transition-colors">Security</a>
+            </div>
           </div>
         </div>
       </footer>
