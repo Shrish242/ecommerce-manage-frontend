@@ -73,7 +73,7 @@ const INSIGHTS_SCHEMA = {
 
 // Function to handle API calls with exponential backoff for robustness
 const backoffFetch = async (url: string, options: RequestInit, retries: number = 3): Promise<Response> => {
-    const apiKey = "AIzaSyASRKQTJDagH2szLodEYTh08yfML4o35JM"; // Canvas platform will inject the key
+    const apiKey = ""; // Canvas platform will inject the key
     const fullUrl = url.includes('generativelanguage.googleapis.com') ? `${url}?key=${apiKey}` : url;
     
     for (let i = 0; i < retries; i++) {
