@@ -341,8 +341,8 @@ export default function Home() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold mb-1">Email Us</h3>
-                <p className="text-slate-600">contact@storeforge.com</p>
-                <p className="text-slate-600">support@storeforge.com</p>
+                <p className="text-slate-600">storeforge100@gmail.com</p>
+                <p className="text-slate-600">storeforge100@gmail.com</p>
               </div>
             </div>
 
@@ -352,8 +352,8 @@ export default function Home() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold mb-1">Call Us</h3>
-                <p className="text-slate-600">+1 (555) 123-4567</p>
-                <p className="text-slate-500 text-sm">Mon-Fri 9am-6pm EST</p>
+                <p className="text-slate-600">977 980001000</p>
+                <p className="text-slate-500 text-sm">Mon-Fri 9am-6pm NST</p>
               </div>
             </div>
 
@@ -363,8 +363,8 @@ export default function Home() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold mb-1">Visit Us</h3>
-                <p className="text-slate-600">123 Commerce Street</p>
-                <p className="text-slate-600">San Francisco, CA 94105</p>
+                <p className="text-slate-600">Kathmandu</p>
+                <p className="text-slate-600">Nepal</p>
               </div>
             </div>
           </div>
@@ -372,14 +372,17 @@ export default function Home() {
           <div className="text-center mt-16">
             <h3 className="text-lg font-semibold mb-6">Follow Us</h3>
             <div className="flex justify-center space-x-4">
-              <a href="#" className="w-14 h-14 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 hover:text-white transition-all duration-300 hover:scale-110 hover:-translate-y-1">
+              <a href=" https://x.com/ShrishDhakal" className="w-14 h-14 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 hover:text-white transition-all duration-300 hover:scale-110 hover:-translate-y-1">
                 <Twitter className="w-6 h-6" />
+               
               </a>
-              <a href="#" className="w-14 h-14 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 hover:text-white transition-all duration-300 hover:scale-110 hover:-translate-y-1">
+              <a href="  https://www.linkedin.com/in/shrishdhakal/" className="w-14 h-14 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 hover:text-white transition-all duration-300 hover:scale-110 hover:-translate-y-1">
                 <Linkedin className="w-6 h-6" />
+              
               </a>
-              <a href="#" className="w-14 h-14 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 hover:text-white transition-all duration-300 hover:scale-110 hover:-translate-y-1">
+              <a href=" https://github.com/Shrish242" className="w-14 h-14 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 hover:text-white transition-all duration-300 hover:scale-110 hover:-translate-y-1">
                 <Github className="w-6 h-6" />
+               
               </a>
             </div>
           </div>

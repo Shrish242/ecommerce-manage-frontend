@@ -162,7 +162,7 @@ function Dashboard() {
   const renderContent = () => {
     switch (activeSection) {
       case 'dashboard':
-        return <DashboardOverview data={dashboardData} />;
+        return React.createElement(DashboardOverview as any, { data: dashboardData });
       case 'products':
         return <ProductManagement products={products} setProducts={setProducts} />;
       case 'orders':
@@ -174,7 +174,7 @@ function Dashboard() {
       case 'settings':
         return <SettingsComponent />;
       default:
-        return <DashboardOverview data={dashboardData} />;
+        return React.createElement(DashboardOverview as any, { data: dashboardData });
     }
   };
 

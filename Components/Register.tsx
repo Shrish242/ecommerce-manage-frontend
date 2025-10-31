@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Building, User, Mail, Phone, MapPin, CreditCard } from "lucide-react";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://70.153.25.251:3001:3001";
 
 const Register: React.FC = () => {
   const router = useRouter();
@@ -26,6 +28,11 @@ const Register: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Verification UI state
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [resendDisabled, setResendDisabled] = useState(false);
+  const [topMessage, setTopMessage] = useState<string | null>(null);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     const inputName = name as FormDataKeys;
@@ -35,10 +42,10 @@ const Register: React.FC = () => {
       [inputName]: type === "checkbox" ? checked : value,
     }));
 
-    if (errors[inputName]) {
+    if ((errors as any)[inputName]) {
       setErrors((prev) => {
         const copy = { ...prev };
-        delete copy[inputName];
+        delete (copy as any)[inputName];
         return copy;
       });
     }
@@ -74,11 +81,36 @@ const Register: React.FC = () => {
     return newErrors;
   };
 
+  const sendVerification = useCallback(async (email: string) => {
+    try {
+      const resp = await fetch(`${API_BASE}/api/send-verification`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      // intentionally treat 200/204/400... generically so we don't leak existence
+      if (!resp.ok) {
+        // show a friendly message but still mark as "sent" to avoid enumeration
+        setTopMessage("If this email exists, a verification message was sent. Check your inbox (or spam).");
+      } else {
+        setTopMessage("Verification email sent — check your inbox (and spam).");
+      }
+      setVerificationSent(true);
+      // disable resend for 60s to reduce accidental retries
+      setResendDisabled(true);
+      setTimeout(() => setResendDisabled(false), 60_000);
+    } catch (err) {
+      console.error("sendVerification error", err);
+      setTopMessage("Failed to send verification email. Try again later.");
+    }
+  }, []);
+
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setErrors({});
-    const formErrors = validateForm();
+    setTopMessage(null);
 
+    const formErrors = validateForm();
     if (Object.keys(formErrors).length > 0) {
       setErrors(formErrors);
       return;
@@ -87,45 +119,93 @@ const Register: React.FC = () => {
     setLoading(true);
 
     try {
-      // ensure PAN is uppercase
       const payload = { ...formData, panNumber: formData.panNumber.toUpperCase() };
 
-      const res = await fetch("http://localhost:3001/api/register", {
+      const res = await fetch(`${API_BASE}/api/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        // expected errors: 400, 409, 500 etc.
-        throw new Error(data.message || "Registration failed");
+        // show validation or conflict message returned by server
+        const message = (data && data.message) || "Registration failed";
+        setTopMessage(message);
+        // if email conflict show under email field
+        if (message.toLowerCase().includes("duplicate") || message.toLowerCase().includes("email")) {
+          setErrors({ email: message });
+        }
+        throw new Error(message);
       }
 
-      // success -> redirect to login page
-      router.push("/login");
+      // Registration succeeded. Send verification email now.
+      await sendVerification(payload.email);
+
+      // keep user on this page and show verification message (they will check email)
+      // Optionally you could redirect to /login after sending
+      // router.push("/login"); // <-- if you want immediate redirect to login
     } catch (err: any) {
-      // show a top-level error (you could map server field errors to fields if needed)
-      setErrors({ email: err.message.includes("email") ? err.message : errors.email });
-      // also show generic alert
-      alert(err.message || "Registration failed");
+      console.error("register error", err);
+      if (!topMessage) setTopMessage(err.message || "Registration failed");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleResend = async () => {
+    if (!formData.email) {
+      setTopMessage("Enter your email above and press Resend.");
+      return;
+    }
+    if (resendDisabled) return;
+    await sendVerification(formData.email);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-800 flex items-center justify-center p-4">
       <div className="bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-8 w-full max-w-4xl animate-fade-in">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3 mb-4">
+        <div className="text-center mb-4">
+          <div className="inline-flex items-center gap-3 mb-2">
             <Building className="w-8 h-8 text-blue-600" />
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Register Your Organization
             </h1>
           </div>
-          <p className="text-gray-600 text-lg">Create your multi-tenant account</p>
+          <p className="text-gray-600 text-sm">Create your multi-tenant account</p>
+
+          {topMessage && (
+            <div className="mt-4 bg-yellow-50 border border-yellow-200 text-yellow-900 p-3 rounded-md text-sm">
+              {topMessage}
+            </div>
+          )}
+
+          {verificationSent && (
+            <div className="mt-4 bg-green-50 border border-green-200 text-green-900 p-3 rounded-md text-sm flex items-center justify-between gap-3">
+              <div>
+                Verification email sent to <strong>{formData.email}</strong>. Click the link in the email to confirm your account.
+                If you don't see it, check spam.
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={resendDisabled}
+                  className={`px-3 py-1 rounded-md text-sm font-semibold ${resendDisabled ? "bg-gray-200 text-gray-600" : "bg-blue-600 text-white hover:bg-blue-700"}`}
+                >
+                  {resendDisabled ? "Resend (wait)" : "Resend"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.push("/Login")}
+                  className="px-3 py-1 rounded-md text-sm font-semibold bg-white border border-gray-200 hover:bg-gray-50"
+                >
+                  Go to Sign in
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6" noValidate>

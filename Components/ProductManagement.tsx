@@ -9,7 +9,7 @@ type ProductManagementProps = {
 };
 
 const DEFAULT_PLACEHOLDER = "https://placehold.co/100x100/cbd5e1/000000?text=Prod";
-const API_BASE = (process.env.NEXT_PUBLIC_API_BASE as string) || "http://localhost:3001";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://70.153.25.251:3001";
 
 /** Normalize server product shape into frontend Product */
 const mapServerToProduct = (srv: any): Product => {

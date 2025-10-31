@@ -6,7 +6,7 @@ import { Search, Plus, User, Loader2, Edit3, X } from "lucide-react";
  * Edited to add: edit order modal so user can change payment status and order status after creation.
  */
 
-const API_BASE = "http://localhost:3001";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://70.153.25.251:3001";
 
 type OrderStatus = "Pending" | "Delivered" | "Cancelled";
 type PaymentStatus = "Unpaid" | "Paid" | "Refunded";
@@ -321,85 +321,93 @@ const OrdersTrackingDashboard: React.FC = () => {
     if (productSelectRef.current) productSelectRef.current.value = "";
   };
 
-  const handleAddNewOrder = async () => {
-    const effectiveToken = token ?? getAuthToken();
-    if (!effectiveToken) return alert("Authentication required.");
-    if (!newOrderCustomerName.trim()) return alert("Customer name is required.");
-    if (!selectedProductId) return alert("Please select a product.");
-    if (quantity <= 0) return alert("Quantity must be at least 1.");
+ const handleAddNewOrder = async () => {
+  const effectiveToken = token ?? getAuthToken();
+  if (!effectiveToken) return alert("Authentication required.");
+  if (!newOrderCustomerName.trim()) return alert("Customer name is required.");
+  if (!selectedProductId) return alert("Please select a product.");
+  if (quantity <= 0) return alert("Quantity must be at least 1.");
 
-    // defensive re-find product in case products changed since selection
-    const product = products.find((p) => p.id === selectedProductId);
-    if (!product) {
-      alert("Selected product is not available. Please choose another product.");
-      return;
-    }
+  // defensive re-find product in case products changed since selection
+  const product = products.find((p) => p.id === selectedProductId);
+  if (!product) {
+    alert("Selected product is not available. Please choose another product.");
+    return;
+  }
 
-    setGlobalLoading(true);
-    try {
-      const itemPrice = Number(product.price || 0);
-      const itemTotal = Number((itemPrice * quantity).toFixed(2));
-      const item: OrderItem = {
+  console.log("🔍 Selected Product:", product);
+  console.log("🔍 Quantity:", quantity, "Type:", typeof quantity);
+
+  setGlobalLoading(true);
+  try {
+    const itemPrice = Number(product.price || 0);
+    const itemTotal = Number((itemPrice * quantity).toFixed(2));
+
+    // Payload structured for your server - items should only have productId and quantity
+    const payload = {
+      customerName: newOrderCustomerName.trim(),
+      orderDate: newOrderDate || new Date().toISOString().split("T")[0],
+      deliveryDate: newDeliveryDate || null,
+      orderStatus: newOrderStatus,
+      paymentStatus: newPaymentStatus,
+      remarks: remarks.trim(),
+      items: [
+        {
+          productId: Number(product.id),  // Server only needs productId
+          quantity: Number(quantity)       // and quantity (it fetches price from DB)
+        }
+      ],
+      purchasedItems: `${product.name} (${quantity}x @ $${itemPrice.toFixed(2)})`,
+    };
+
+    console.log("📤 Sending Payload:", JSON.stringify(payload, null, 2));
+
+    const created = await apiFetch<OrderApiResponse>("/api/orders", effectiveToken, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+
+    console.log("✅ Order Created:", created);
+
+    // Server returns order (may include items). Compose a UI-friendly object:
+    const createdId = Number(created?.id ?? (created as any)?.orderId ?? Date.now());
+    const newOrder: Order = {
+      id: Number.isNaN(createdId) ? Date.now() : createdId,
+      customerName: created.customerName || newOrderCustomerName,
+      purchasedItems: created.purchasedItems ?? payload.purchasedItems,
+      orderDate: created.orderDate ?? payload.orderDate,
+      deliveryDate: created.deliveryDate ?? payload.deliveryDate,
+      paymentDate: created.paymentDate ?? undefined,
+      orderStatus: (created.orderStatus as OrderStatus) || newOrderStatus,
+      paymentStatus: (created.paymentStatus as PaymentStatus) || newPaymentStatus,
+      remarks: created.remarks ?? remarks,
+      items: Array.isArray(created.items) ? created.items.map((it: any) => ({
+        productId: Number(it.productId ?? it.product_id),
+        name: it.name ?? it.productName ?? product.name,
+        price: Number(it.unitPrice ?? it.unit_price ?? it.price ?? itemPrice),
+        quantity: Number(it.quantity ?? it.qty ?? quantity),
+        totalPrice: Number(it.totalPrice ?? it.total_price ?? itemTotal),
+      })) : [{
         productId: product.id,
         name: product.name,
         price: itemPrice,
         quantity,
         totalPrice: itemTotal,
-      };
+      }],
+      totalAmount: created.totalAmount != null ? Number(created.totalAmount) : itemTotal,
+    };
 
-      // Payload structured for your server (server stores purchasedItems string)
-      const payload = {
-        customerName: newOrderCustomerName,
-        orderDate: newOrderDate || new Date().toISOString().split("T")[0],
-        deliveryDate: newDeliveryDate || null,
-        orderStatus: newOrderStatus,
-        paymentStatus: newPaymentStatus,
-        remarks,
-        ownerId: user?.id,
-        items: [item],
-        totalAmount: itemTotal,
-        purchasedItems: `${product.name} (${quantity}x @ $${itemPrice.toFixed(2)})`,
-      };
-
-      const created = await apiFetch<OrderApiResponse>("/api/orders", effectiveToken, {
-        method: "POST",
-        body: JSON.stringify(payload),
-      });
-
-      // Server returns order (may include items). Compose a UI-friendly object:
-      const createdId = Number(created?.id ?? (created as any)?.orderId ?? Date.now());
-      const newOrder: Order = {
-        id: Number.isNaN(createdId) ? Date.now() : createdId,
-        customerName: created.customerName || newOrderCustomerName,
-        purchasedItems: created.purchasedItems ?? payload.purchasedItems,
-        orderDate: created.orderDate ?? payload.orderDate,
-        deliveryDate: created.deliveryDate ?? payload.deliveryDate,
-        paymentDate: created.paymentDate ?? undefined,
-        orderStatus: (created.orderStatus as OrderStatus) || newOrderStatus,
-        paymentStatus: (created.paymentStatus as PaymentStatus) || newPaymentStatus,
-        remarks: created.remarks ?? remarks,
-        items: Array.isArray(created.items) ? created.items.map((it: any) => ({
-          productId: Number(it.productId ?? it.product_id),
-          name: it.name ?? it.productName ?? product.name,
-          price: Number(it.unitPrice ?? it.unit_price ?? it.price ?? itemPrice),
-          quantity: Number(it.quantity ?? it.qty ?? quantity),
-          totalPrice: Number(it.totalPrice ?? it.total_price ?? itemTotal),
-        })) : [item],
-        totalAmount: created.totalAmount != null ? Number(created.totalAmount) : itemTotal,
-      };
-
-      setOrders((prev) => [newOrder, ...prev]);
-      resetAddOrderForm();
-      setShowAdd(false);
-      alert("Order added successfully!");
-    } catch (err) {
-      console.error("Add order failed:", err);
-      alert(err instanceof Error ? err.message : "Failed to add order");
-    } finally {
-      setGlobalLoading(false);
-    }
-  };
-
+    setOrders((prev) => [newOrder, ...prev]);
+    resetAddOrderForm();
+    setShowAdd(false);
+    alert("Order added successfully!");
+  } catch (err) {
+    console.error("Add order failed:", err);
+    alert(err instanceof Error ? err.message : "Failed to add order");
+  } finally {
+    setGlobalLoading(false);
+  }
+};
   // ----------------- EDIT/UPDATE logic -----------------
   const openEdit = (order: Order) => {
     setEditingOrder(order);

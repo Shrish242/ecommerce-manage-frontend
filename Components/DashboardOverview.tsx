@@ -127,7 +127,7 @@ const DashboardOverview: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const API_BASE = 'http://localhost:3001/api';
+  const API_BASE = 'http://70.153.25.251:3001/api';
 
   // Helper to get auth token (matches your OrdersTrackingDashboard pattern)
   const getAuthToken = (): string | null => {

@@ -16,7 +16,7 @@ import {
   Key,
 } from "lucide-react";
 
-const API_BASE = "http://localhost:3001";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://70.153.25.251:3001";
 
 /* ---------------------- Types ---------------------- */
 type UserDetails = {
