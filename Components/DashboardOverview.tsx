@@ -127,7 +127,7 @@ const DashboardOverview: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const API_BASE = 'http://70.153.25.251:3001/api';
+  const API_BASE = 'https://backend-template-58uoqaq4r-srs-projects-c448f20f.vercel.app/api';
 
   // Helper to get auth token (matches your OrdersTrackingDashboard pattern)
   const getAuthToken = (): string | null => {

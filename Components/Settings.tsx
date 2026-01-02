@@ -16,7 +16,7 @@ import {
   Key,
 } from "lucide-react";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://70.153.25.251:3001";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://backend-template-58uoqaq4r-srs-projects-c448f20f.vercel.app";
 
 /* ---------------------- Types ---------------------- */
 type UserDetails = {

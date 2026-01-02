@@ -6,7 +6,7 @@ import { Search, Plus, User, Loader2, Edit3, X } from "lucide-react";
  * Edited to add: edit order modal so user can change payment status and order status after creation.
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://70.153.25.251:3001";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://backend-template-58uoqaq4r-srs-projects-c448f20f.vercel.app";
 
 type OrderStatus = "Pending" | "Delivered" | "Cancelled";
 type PaymentStatus = "Unpaid" | "Paid" | "Refunded";

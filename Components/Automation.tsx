@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Bell, Package, Settings, TrendingDown, AlertCircle, CheckCircle, Clock, Filter, Plus, X, Edit, Trash2, Play, Pause, ChevronRight, BarChart3, ShoppingCart, AlertTriangle, Activity, Target, Zap, Eye, Calendar, Search, Loader2, RefreshCw } from 'lucide-react';
 
 // --- API Configuration and Types ---
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://70.153.25.251:3001";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://backend-template-58uoqaq4r-srs-projects-c448f20f.vercel.app";
 
 type RuleStatus = 'active' | 'paused';
 type AlertType = 'warning' | 'error' | 'success' | 'info';

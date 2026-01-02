@@ -39,7 +39,7 @@ import { NEXT_PUBLIC_API_URL } from "./clientEnv";
  * from your orders and products data - no external AI services required.
  */
 
-const API_BASE = NEXT_PUBLIC_API_URL || "http://70.153.25.251:3001";
+const API_BASE = NEXT_PUBLIC_API_URL || "https://backend-template-58uoqaq4r-srs-projects-c448f20f.vercel.app";
 
 // Types
 interface Product {
@@ -105,8 +105,8 @@ const Analytics: React.FC = () => {
         "Content-Type": "application/json",
       };
       const [ordersRes, productsRes] = await Promise.all([
-        backoffFetch(`${API_BASE}/api/orders`, { headers }),
-        backoffFetch(`${API_BASE}/api/products`, { headers }),
+        backoffFetch(`${API_BASE}api/orders`, { headers }),
+        backoffFetch(`${API_BASE}api/products`, { headers }),
       ]);
       const ordersData = await ordersRes.json();
       const productsData = await productsRes.json();

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Menu, Search, UserCircle, X, LogOut, Settings, Home, LayoutDashboard, ChevronDown } from "lucide-react";
+import { Menu, Search, UserCircle, X, LogOut, Home, LayoutDashboard, ChevronDown, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function Navbar() {
@@ -10,6 +10,8 @@ export default function Navbar() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   // Check authentication status on component mount and when auth state changes
   useEffect(() => {
@@ -37,6 +39,31 @@ export default function Navbar() {
     };
   }, []);
 
+  // Handle navbar visibility on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY < 10) {
+        setIsVisible(true);
+      } else if (currentScrollY > lastScrollY) {
+        // Scrolling down
+        setIsVisible(false);
+      } else {
+        // Scrolling up
+        setIsVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [lastScrollY]);
+
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const toggleProfileDropdown = () => setShowProfileDropdown(!showProfileDropdown);
 
@@ -55,88 +82,95 @@ export default function Navbar() {
   };
 
   return (
-    <div className="w-full bg-white shadow-md font-sans">
-      <nav className="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+    <div className={`w-full bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 fixed top-0 z-50 backdrop-blur-sm bg-white/95 dark:bg-slate-950/95 transition-transform duration-300 ${
+      isVisible ? 'translate-y-0' : '-translate-y-full'
+    }`}>
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+        {/* Left section */}
+        <div className="flex items-center gap-4">
           <button
-            className="lg:hidden p-2 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
+            className="lg:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             onClick={toggleSidebar}
             aria-label="Toggle navigation"
           >
-            <Menu className="h-6 w-6 text-gray-700" />
+            <Menu className="h-5 w-5 text-slate-700 dark:text-slate-300" />
           </button>
-          <div className="text-2xl font-extrabold text-blue-600">Store Forge</div>
+          
+          <a href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-xl font-bold text-slate-900 dark:text-white">StoreForge</span>
+          </a>
         </div>
 
-        <div className="flex items-center space-x-4">
-          <ul className="hidden lg:flex items-center space-x-2 text-gray-700 font-medium">
-            <li>
-              <a
-                href="/"
-                className="relative px-4 py-2 rounded-md hover:bg-blue-50 hover:text-blue-700 transition-all duration-300 ease-in-out
-                           before:absolute before:bottom-0 before:left-1/2 before:w-0 before:h-0.5 before:bg-blue-600 before:transition-all before:duration-300 before:ease-in-out
-                           hover:before:w-full hover:before:left-0"
-              >
-                Home
-              </a>
-            </li>
-            <li>
-              <a
-                href="/dashboard"
-                className="relative px-4 py-2 rounded-md hover:bg-blue-50 hover:text-blue-700 transition-all duration-300 ease-in-out
-                           before:absolute before:bottom-0 before:left-1/2 before:w-0 before:h-0.5 before:bg-blue-600 before:transition-all before:duration-300 before:ease-in-out
-                           hover:before:w-full hover:before:left-0"
-              >
-                Dashboard
-              </a>
-            </li>
-          </ul>
+        {/* Center section - Desktop Navigation */}
+        <ul className="hidden lg:flex items-center gap-1">
+          <li>
+            <a
+              href="/"
+              className="px-4 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors"
+            >
+              Home
+            </a>
+          </li>
+          <li>
+            <a
+              href="/dashboard"
+              className="px-4 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors"
+            >
+              Dashboard
+            </a>
+          </li>
+        </ul>
 
+        {/* Right section */}
+        <div className="flex items-center gap-3">
+          {/* Search bar */}
           <div className="relative hidden md:block">
             <input
               type="text"
               placeholder="Search..."
-              className="pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 w-48 focus:w-64"
+              className="pl-10 pr-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all w-48 focus:w-64"
             />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-slate-500" />
           </div>
 
-          {/* Conditional rendering based on login status */}
+          {/* Auth section */}
           {!loggedIn ? (
-            <div className="relative px-4 py-2 rounded-md hover:bg-blue-50 hover:text-blue-700 transition-all duration-300 ease-in-out
-                           before:absolute before:bottom-0 before:left-1/2 before:w-0 before:h-0.5 before:bg-blue-600 before:transition-all before:duration-300 before:ease-in-out
-                           hover:before:w-full hover:before:left-0">
-              <a href="/Login">
-                <span>Login</span>
-              </a>
-            </div>
+            <a 
+              href="/Login"
+              className="px-4 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors"
+            >
+              Login
+            </a>
           ) : (
             <div className="relative">
               <button
                 onClick={toggleProfileDropdown}
-                className="flex items-center space-x-2 px-4 py-2 rounded-md hover:bg-blue-50 hover:text-blue-700 transition-all duration-300 ease-in-out"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
-                <UserCircle className="h-6 w-6" />
-                <span className="hidden md:block">{user?.name || user?.email || 'Profile'}</span>
-                <ChevronDown className="h-4 w-4" />
+                <UserCircle className="h-5 w-5 text-slate-700 dark:text-slate-300" />
+                <span className="hidden md:block text-sm font-medium text-slate-700 dark:text-slate-300">
+                  {user?.name || user?.email || 'Profile'}
+                </span>
+                <ChevronDown className="h-4 w-4 text-slate-500 dark:text-slate-400" />
               </button>
 
               {/* Profile Dropdown */}
               {showProfileDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
-                  <div className="py-1">
-                    <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
-                      <div className="font-medium">{user?.name || 'User'}</div>
-                      <div className="text-gray-500">{user?.email}</div>
-                    </div>
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-150"
-                    >
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Logout
-                    </button>
+                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded-lg shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                  <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-800">
+                    <div className="font-medium text-slate-900 dark:text-white">{user?.name || 'User'}</div>
+                    <div className="text-sm text-slate-500 dark:text-slate-400">{user?.email}</div>
                   </div>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center w-full px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  >
+                    <LogOut className="h-4 w-4 mr-3" />
+                    Logout
+                  </button>
                 </div>
               )}
             </div>
@@ -144,66 +178,80 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile Sidebar */}
+      {/* Mobile Sidebar Overlay */}
       <div
-        className={`fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300 ${
+        className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300 lg:hidden ${
           sidebarOpen ? "opacity-100 visible" : "opacity-0 invisible"
         }`}
         onClick={toggleSidebar}
       ></div>
 
+      {/* Mobile Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 h-full w-72 bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 z-50 transform transition-transform duration-300 ease-out lg:hidden ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="p-4 border-b flex justify-between items-center">
-          <div className="text-xl font-bold text-blue-600">Navigation</div>
+        {/* Sidebar Header */}
+        <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-lg font-bold text-slate-900 dark:text-white">StoreForge</span>
+          </div>
           <button
-            className="p-2 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
+            className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             onClick={toggleSidebar}
             aria-label="Close navigation"
           >
-            <X className="h-6 w-6 text-gray-700" />
+            <X className="h-5 w-5 text-slate-700 dark:text-slate-300" />
           </button>
         </div>
-        <ul className="flex flex-col p-4 space-y-2">
-          <li>
-            <a href="/" className="block px-4 py-2 rounded-md text-gray-800 hover:bg-blue-50 hover:text-blue-600 flex items-center space-x-2 transition-colors duration-150">
-              <Home className="h-5 w-5" /> <span>Home</span>
-            </a>
-          </li>
-          <li>
-            <a href="/dashboard" className="block px-4 py-2 rounded-md text-gray-800 hover:bg-blue-50 hover:text-blue-600 flex items-center space-x-2 transition-colors duration-150">
-              <LayoutDashboard className="h-5 w-5" /> <span>Dashboard</span>
-            </a>
-          </li>
-          <hr className="my-2 border-gray-100" />
+
+        {/* Sidebar Content */}
+        <div className="p-4 space-y-2">
+          <a 
+            href="/" 
+            className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          >
+            <Home className="h-5 w-5" />
+            <span className="font-medium">Home</span>
+          </a>
+          <a 
+            href="/dashboard" 
+            className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          >
+            <LayoutDashboard className="h-5 w-5" />
+            <span className="font-medium">Dashboard</span>
+          </a>
           
-          {/* Mobile auth section */}
-          {!loggedIn ? (
-            <li>
-              <a href="/Login" className="block px-4 py-2 rounded-md text-gray-800 hover:bg-blue-50 hover:text-blue-600 flex items-center space-x-2 transition-colors duration-150">
-                <UserCircle className="h-5 w-5" /> <span>Login</span>
+          <div className="pt-4 mt-4 border-t border-slate-200 dark:border-slate-800">
+            {!loggedIn ? (
+              <a 
+                href="/Login" 
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              >
+                <UserCircle className="h-5 w-5" />
+                <span className="font-medium">Login</span>
               </a>
-            </li>
-          ) : (
-            <>
-              <li className="px-4 py-2 text-sm text-gray-600 border-b border-gray-100">
-                <div className="font-medium">{user?.name || 'User'}</div>
-                <div className="text-gray-500 text-xs">{user?.email}</div>
-              </li>
-              <li>
+            ) : (
+              <>
+                <div className="px-4 py-3 mb-2 rounded-lg bg-slate-50 dark:bg-slate-900">
+                  <div className="font-medium text-slate-900 dark:text-white">{user?.name || 'User'}</div>
+                  <div className="text-sm text-slate-500 dark:text-slate-400">{user?.email}</div>
+                </div>
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left block px-4 py-2 rounded-md text-gray-800 hover:bg-blue-50 hover:text-blue-600 flex items-center space-x-2 transition-colors duration-150"
+                  className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                 >
-                  <LogOut className="h-5 w-5" /> <span>Logout</span>
+                  <LogOut className="h-5 w-5" />
+                  <span className="font-medium">Logout</span>
                 </button>
-              </li>
-            </>
-          )}
-        </ul>
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

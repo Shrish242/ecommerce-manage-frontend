@@ -8,8 +8,7 @@ type ProductManagementProps = {
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
 };
 
-const DEFAULT_PLACEHOLDER = "https://placehold.co/100x100/cbd5e1/000000?text=Prod";
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://70.153.25.251:3001";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://backend-template-58uoqaq4r-srs-projects-c448f20f.vercel.app";
 
 /** Normalize server product shape into frontend Product */
 const mapServerToProduct = (srv: any): Product => {
@@ -21,7 +20,6 @@ const mapServerToProduct = (srv: any): Product => {
     price: Number(srv.price ?? 0),
     stock: Number(srv.stock ?? 0),
     ordersReceived: Number(srv.ordersReceived ?? srv.orders_received ?? 0),
-    imageUrl: srv.imageUrl ?? srv.image_url ?? DEFAULT_PLACEHOLDER,
     created_at: srv.created_at ?? srv.createdAt ?? undefined,
     updated_at: srv.updated_at ?? srv.updatedAt ?? undefined,
     ...srv,
@@ -256,12 +254,7 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ products, setProd
               required
             />
           </div>
-          <div>
-            <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-1">
-              Image (optional)
-            </label>
-            <input type="file" accept="image/*" onChange={handleFileChange} className="mt-1" />
-          </div>
+          
           <div className="md:col-span-2">
             <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
               Description
@@ -300,13 +293,11 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ products, setProd
                 className="bg-gray-50 rounded-lg shadow-sm overflow-hidden border border-gray-200 p-4 flex flex-col items-center text-center"
               >
                 <img
-                  src={product.imageUrl ?? DEFAULT_PLACEHOLDER}
                   alt={product.name}
                   className="w-24 h-24 object-cover rounded-md mb-3 border border-gray-300"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.onerror = null;
-                    target.src = DEFAULT_PLACEHOLDER;
                   }}
                 />
                 <h4 className="font-semibold text-gray-900 text-base mb-1 truncate w-full">{product.name}</h4>

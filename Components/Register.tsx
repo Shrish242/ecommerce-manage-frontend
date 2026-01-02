@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Building, User, Mail, Phone, MapPin, CreditCard } from "lucide-react";
+import { Eye, EyeOff, Building, User, Mail, Phone, MapPin, CreditCard, Sparkles } from "lucide-react";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://70.153.25.251:3001:3001";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://backend-template-jj60ntkqp-srs-projects-c448f20f.vercel.app";
 
 const Register: React.FC = () => {
   const router = useRouter();
@@ -27,10 +27,6 @@ const Register: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  // Verification UI state
-  const [verificationSent, setVerificationSent] = useState(false);
-  const [resendDisabled, setResendDisabled] = useState(false);
   const [topMessage, setTopMessage] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,62 +47,84 @@ const Register: React.FC = () => {
     }
   };
 
+  function validatePan(value: string) {
+    const v = String(value || "").trim();
+    if (!v) return "PAN number is required";
+    if (!/^\d+$/.test(v)) return "PAN must contain digits only";
+    if (v.length < 8) return "PAN must be at least 8 digits";
+    if (v.length >= 10) return "PAN must be less than 10 digits";
+    return "";
+  }
+
+  function handlePanChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const raw = String(e.target.value || "");
+    const digitsOnly = raw.replace(/\D/g, "").slice(0, 9);
+    setFormData((prev) => ({ ...prev, panNumber: digitsOnly }));
+    setErrors((prev) => {
+      const copy = { ...prev };
+      const err = validatePan(digitsOnly);
+      if (err) copy.panNumber = err;
+      else delete copy.panNumber;
+      return copy;
+    });
+  }
+
+  function handleContactChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const raw = String(e.target.value || "");
+    const digitsOnly = raw.replace(/\D/g, "").slice(0, 10);
+    setFormData((prev) => ({ ...prev, contactNumber: digitsOnly }));
+    setErrors((prev) => {
+      const copy = { ...prev };
+      if (!/^\d{10}$/.test(digitsOnly)) copy.contactNumber = "Please enter a valid 10-digit contact number";
+      else delete copy.contactNumber;
+      return copy;
+    });
+  }
+
   const validateForm = () => {
     const newErrors: ErrorsType = {};
 
     if (!formData.organizationName.trim()) newErrors.organizationName = "Organization name is required";
-
     if (!formData.email.trim()) newErrors.email = "Email address is required";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = "Please enter a valid email address";
-
     if (!formData.password) newErrors.password = "Password is required";
     else if (formData.password.length < 8) newErrors.password = "Password must be at least 8 characters long";
-
     if (!formData.confirmPassword) newErrors.confirmPassword = "Please confirm your password";
     else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Passwords do not match";
-
     if (!formData.username.trim()) newErrors.username = "Username is required";
-
     if (!formData.contactNumber.trim()) newErrors.contactNumber = "Contact number is required";
     else if (!/^\d{10}$/.test(formData.contactNumber)) newErrors.contactNumber = "Please enter a valid 10-digit contact number";
-
-    if (!formData.panNumber.trim()) newErrors.panNumber = "PAN number is required";
-    else if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.panNumber.toUpperCase()))
-      newErrors.panNumber = "Please enter a valid PAN number (e.g., ABCDE1234F)";
-
+    const panErr = validatePan(formData.panNumber);
+    if (panErr) newErrors.panNumber = panErr;
     if (!formData.location.trim()) newErrors.location = "Location is required";
-
     if (!formData.acceptTerms) newErrors.acceptTerms = "You must accept the terms and conditions";
 
     return newErrors;
   };
 
-  const sendVerification = useCallback(async (email: string) => {
+  const autoLogin = async (email: string, password: string) => {
     try {
-      const resp = await fetch(`${API_BASE}/api/send-verification`, {
+      const loginRes = await fetch(`${API_BASE}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, password }),
       });
-      // intentionally treat 200/204/400... generically so we don't leak existence
-      if (!resp.ok) {
-        // show a friendly message but still mark as "sent" to avoid enumeration
-        setTopMessage("If this email exists, a verification message was sent. Check your inbox (or spam).");
-      } else {
-        setTopMessage("Verification email sent — check your inbox (and spam).");
-      }
-      setVerificationSent(true);
-      // disable resend for 60s to reduce accidental retries
-      setResendDisabled(true);
-      setTimeout(() => setResendDisabled(false), 60_000);
-    } catch (err) {
-      console.error("sendVerification error", err);
-      setTopMessage("Failed to send verification email. Try again later.");
-    }
-  }, []);
 
-  const handleSubmit = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
+      if (!loginRes.ok) throw new Error("Auto-login failed");
+
+      const loginData = await loginRes.json();
+      
+      if (loginData.token) localStorage.setItem("authToken", loginData.token);
+      if (loginData.user) localStorage.setItem("user", JSON.stringify(loginData.user));
+
+      return true;
+    } catch (err) {
+      console.error("Auto-login error:", err);
+      return false;
+    }
+  };
+
+  const handleSubmit = async () => {
     setErrors({});
     setTopMessage(null);
 
@@ -119,7 +137,7 @@ const Register: React.FC = () => {
     setLoading(true);
 
     try {
-      const payload = { ...formData, panNumber: formData.panNumber.toUpperCase() };
+      const payload = { ...formData, panNumber: formData.panNumber };
 
       const res = await fetch(`${API_BASE}/api/register`, {
         method: "POST",
@@ -130,22 +148,26 @@ const Register: React.FC = () => {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        // show validation or conflict message returned by server
         const message = (data && data.message) || "Registration failed";
         setTopMessage(message);
-        // if email conflict show under email field
         if (message.toLowerCase().includes("duplicate") || message.toLowerCase().includes("email")) {
           setErrors({ email: message });
         }
         throw new Error(message);
       }
 
-      // Registration succeeded. Send verification email now.
-      await sendVerification(payload.email);
-
-      // keep user on this page and show verification message (they will check email)
-      // Optionally you could redirect to /login after sending
-      // router.push("/login"); // <-- if you want immediate redirect to login
+      setTopMessage("Registration successful! Logging you in...");
+      
+      const loginSuccess = await autoLogin(formData.email, formData.password);
+      
+      if (loginSuccess) {
+        router.push("/dashboard");
+      } else {
+        setTopMessage("Registration successful! Please log in.");
+        setTimeout(() => {
+          router.push("/Login");
+        }, 2000);
+      }
     } catch (err: any) {
       console.error("register error", err);
       if (!topMessage) setTopMessage(err.message || "Registration failed");
@@ -154,195 +176,220 @@ const Register: React.FC = () => {
     }
   };
 
-  const handleResend = async () => {
-    if (!formData.email) {
-      setTopMessage("Enter your email above and press Resend.");
-      return;
-    }
-    if (resendDisabled) return;
-    await sendVerification(formData.email);
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-800 flex items-center justify-center p-4">
-      <div className="bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-8 w-full max-w-4xl animate-fade-in">
-        <div className="text-center mb-4">
-          <div className="inline-flex items-center gap-3 mb-2">
-            <Building className="w-8 h-8 text-blue-600" />
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Register Your Organization
-            </h1>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-12 px-4">
+      <div className="max-w-3xl mx-auto">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 mb-2">
           </div>
-          <p className="text-gray-600 text-sm">Create your multi-tenant account</p>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Create Your Account</h1>
+          <p className="text-slate-600 dark:text-slate-400">Register your organization to get started</p>
 
           {topMessage && (
-            <div className="mt-4 bg-yellow-50 border border-yellow-200 text-yellow-900 p-3 rounded-md text-sm">
+            <div className={`mt-4 p-4 rounded-lg text-sm ${
+              topMessage.includes("successful") || topMessage.includes("Logging you in")
+                ? "bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900 text-green-700 dark:text-green-400"
+                : "bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-900 text-yellow-700 dark:text-yellow-400"
+            }`}>
               {topMessage}
-            </div>
-          )}
-
-          {verificationSent && (
-            <div className="mt-4 bg-green-50 border border-green-200 text-green-900 p-3 rounded-md text-sm flex items-center justify-between gap-3">
-              <div>
-                Verification email sent to <strong>{formData.email}</strong>. Click the link in the email to confirm your account.
-                If you don't see it, check spam.
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleResend}
-                  disabled={resendDisabled}
-                  className={`px-3 py-1 rounded-md text-sm font-semibold ${resendDisabled ? "bg-gray-200 text-gray-600" : "bg-blue-600 text-white hover:bg-blue-700"}`}
-                >
-                  {resendDisabled ? "Resend (wait)" : "Resend"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => router.push("/Login")}
-                  className="px-3 py-1 rounded-md text-sm font-semibold bg-white border border-gray-200 hover:bg-gray-50"
-                >
-                  Go to Sign in
-                </button>
-              </div>
             </div>
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-          {/* Organization Details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800 p-8">
+          <div className="space-y-6">
+            {/* Organization Name */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 <Building className="inline w-4 h-4 mr-2" />
                 Organization Name *
               </label>
-              <input name="organizationName" value={formData.organizationName} onChange={handleInputChange} className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 hover:border-gray-300" placeholder="Enter your organization name" />
-              {errors.organizationName && <p className="text-red-500 text-sm mt-1">{errors.organizationName}</p>}
+              <input
+                name="organizationName"
+                value={formData.organizationName}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all"
+                placeholder="Enter organization name"
+              />
+              {errors.organizationName && <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.organizationName}</p>}
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                <Mail className="inline w-4 h-4 mr-2" />
-                Email Address *
-              </label>
-              <input name="email" type="email" value={formData.email} onChange={handleInputChange} className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 hover:border-gray-300" placeholder="Enter your email address" />
-              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                <User className="inline w-4 h-4 mr-2" />
-                Username *
-              </label>
-              <input name="username" value={formData.username} onChange={handleInputChange} className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 hover:border-gray-300" placeholder="Choose a username" />
-              {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
-            </div>
-          </div>
-
-          {/* Password Fields */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Password *</label>
-              <div className="relative">
-                <input name="password" type={showPassword ? "text" : "password"} value={formData.password} onChange={handleInputChange} className="w-full px-4 py-3 pr-12 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 hover:border-gray-300" placeholder="Create a password" />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
+            {/* Email & Username */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  <Mail className="inline w-4 h-4 mr-2" />
+                  Email *
+                </label>
+                <input
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all"
+                  placeholder="your@email.com"
+                />
+                {errors.email && <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.email}</p>}
               </div>
-              <p className="text-xs text-gray-500 mt-1">At least 8 characters with letters and numbers</p>
-              {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
-            </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Confirm Password *</label>
-              <div className="relative">
-                <input name="confirmPassword" type={showConfirmPassword ? "text" : "password"} value={formData.confirmPassword} onChange={handleInputChange} className="w-full px-4 py-3 pr-12 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 hover:border-gray-300" placeholder="Confirm your password" />
-                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  <User className="inline w-4 h-4 mr-2" />
+                  Username *
+                </label>
+                <input
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all"
+                  placeholder="Choose username"
+                />
+                {errors.username && <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.username}</p>}
               </div>
-              {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>}
             </div>
-          </div>
 
-          {/* Contact Details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Password Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Password *</label>
+                <div className="relative">
+                  <input
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 pr-12 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all"
+                    placeholder="Create password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+                {errors.password && <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.password}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Confirm Password *</label>
+                <div className="relative">
+                  <input
+                    name="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 pr-12 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all"
+                    placeholder="Confirm password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+                {errors.confirmPassword && <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.confirmPassword}</p>}
+              </div>
+            </div>
+
+            {/* Contact & PAN */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  <Phone className="inline w-4 h-4 mr-2" />
+                  Contact Number *
+                </label>
+                <input
+                  name="contactNumber"
+                  type="tel"
+                  value={formData.contactNumber}
+                  onChange={handleContactChange}
+                  className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all"
+                  placeholder="10-digit number"
+                  maxLength={10}
+                />
+                {errors.contactNumber && <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.contactNumber}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  <CreditCard className="inline w-4 h-4 mr-2" />
+                  PAN Number *
+                </label>
+                <input
+                  name="panNumber"
+                  type="text"
+                  value={formData.panNumber}
+                  onChange={handlePanChange}
+                  className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all"
+                  placeholder="8-9 digits"
+                  maxLength={9}
+                />
+                {errors.panNumber && <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.panNumber}</p>}
+              </div>
+            </div>
+
+            {/* Location */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                <Phone className="inline w-4 h-4 mr-2" />
-                Contact Number *
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                <MapPin className="inline w-4 h-4 mr-2" />
+                Location *
               </label>
-              <input name="contactNumber" type="tel" value={formData.contactNumber} onChange={handleInputChange} className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 hover:border-gray-300" placeholder="Enter 10-digit mobile number" maxLength={10} />
-              {errors.contactNumber && <p className="text-red-500 text-sm mt-1">{errors.contactNumber}</p>}
+              <input
+                name="location"
+                value={formData.location}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all"
+                placeholder="City, State"
+              />
+              {errors.location && <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.location}</p>}
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                <CreditCard className="inline w-4 h-4 mr-2" />
-                PAN Number *
+            {/* Terms */}
+            <div className="flex items-start gap-3">
+              <input
+                name="acceptTerms"
+                id="acceptTerms"
+                type="checkbox"
+                checked={formData.acceptTerms}
+                onChange={handleInputChange}
+                className="w-5 h-5 text-blue-600 border-slate-300 dark:border-slate-700 rounded focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-2 mt-0.5"
+              />
+              <label htmlFor="acceptTerms" className="text-sm text-slate-700 dark:text-slate-300">
+                I agree to the{" "}
+                <a href="#" className="text-blue-600 dark:text-blue-400 hover:underline">
+                  Terms and Conditions
+                </a>{" "}
+                and{" "}
+                <a href="#" className="text-blue-600 dark:text-blue-400 hover:underline">
+                  Privacy Policy
+                </a>
               </label>
-              <input name="panNumber" type="text" value={formData.panNumber} onChange={handleInputChange} className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 hover:border-gray-300 uppercase" placeholder="ABCDE1234F" maxLength={10} style={{ textTransform: "uppercase" }} />
-              {errors.panNumber && <p className="text-red-500 text-sm mt-1">{errors.panNumber}</p>}
+            </div>
+            {errors.acceptTerms && <p className="text-red-500 dark:text-red-400 text-sm">{errors.acceptTerms}</p>}
+
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? "Creating Account..." : "Create Account"}
+            </button>
+
+            <div className="text-center">
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                Already have an account?{" "}
+                <a href="/Login" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
+                  Sign in
+                </a>
+              </p>
             </div>
           </div>
-
-          {/* Location */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              <MapPin className="inline w-4 h-4 mr-2" />
-              Location *
-            </label>
-            <input name="location" type="text" value={formData.location} onChange={handleInputChange} className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 hover:border-gray-300" placeholder="Enter your city, state" />
-            {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location}</p>}
-          </div>
-
-          {/* Terms */}
-          <div className="flex items-start gap-3">
-            <input name="acceptTerms" id="acceptTerms" type="checkbox" checked={formData.acceptTerms} onChange={handleInputChange} className="w-5 h-5 text-blue-600 border-2 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 mt-0.5" />
-            <label htmlFor="acceptTerms" className="text-sm text-gray-700 leading-relaxed">
-              I agree to the{" "}
-              <a href="#" className="text-blue-600 hover:text-blue-800 font-semibold hover:underline">
-                Terms and Conditions
-              </a>{" "}
-              and{" "}
-              <a href="#" className="text-blue-600 hover:text-blue-800 font-semibold hover:underline">
-                Privacy Policy
-              </a>{" "}
-              of this website *
-            </label>
-          </div>
-          {errors.acceptTerms && <p className="text-red-500 text-sm">{errors.acceptTerms}</p>}
-
-          <button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-8 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 focus:ring-4 focus:ring-blue-500/25">
-            {loading ? "Creating..." : "Create Organization Account"}
-          </button>
-
-          <div className="text-center pt-4">
-            <p className="text-gray-600">
-              Already have an account?{" "}
-              <a href="/Login" className="text-blue-600 hover:text-blue-800 font-semibold hover:underline">
-                Sign in here
-              </a>
-            </p>
-          </div>
-        </form>
+        </div>
       </div>
-
-      <style jsx>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.6s ease-out;
-        }
-      `}</style>
     </div>
   );
 };
